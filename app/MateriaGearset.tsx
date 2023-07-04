@@ -8,7 +8,7 @@ import {
   expectedRequiredMateriaCounts,
 } from "./simulation";
 import clsx from "clsx";
-import { crafterMaterias } from "./materia";
+import { crafterMaterias, gathererMaterias } from "./materia";
 
 const subHandOrder = [
   "木工",
@@ -202,7 +202,7 @@ export default function MateriaGearset({}: {}) {
       </div>
       <div className="mt-4">
         <h2 className="text-xl">ギャザラー</h2>
-        {crafterMaterias.map((mat) => {
+        {gathererMaterias.map((mat) => {
           return (
             <div key={mat.prefix} className="ml-4">
               <h3>{mat.prefix}</h3>
