@@ -1,9 +1,9 @@
-export interface Materia {
+export interface MateriaSlot {
   name: string;
   probability: number;
 }
 
-export const subHand = new Map<string, Materia[]>([
+export const subHand = new Map<string, MateriaSlot[]>([
   [
     "木工",
     [
@@ -106,7 +106,7 @@ export const subHand = new Map<string, Materia[]>([
   ],
 ]);
 
-export const gatherer = new Map<string, Materia[]>([
+export const gatherer = new Map<string, MateriaSlot[]>([
   [
     "頭",
     [
@@ -209,7 +209,7 @@ export const gatherer = new Map<string, Materia[]>([
   ],
 ]);
 
-export const crafter = new Map<string, Materia[]>([
+export const crafter = new Map<string, MateriaSlot[]>([
   [
     "頭",
     [

@@ -1,14 +1,14 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { Materia, crafter, gatherer, subHand } from "./gearset";
+import { MateriaSlot, crafter, gatherer, subHand } from "./gearset";
 import {
   ExpectedCount,
   expectedCountAtThreshold,
   expectedRequiredMateriaCounts,
 } from "./simulation";
 import clsx from "clsx";
-import { orderBy } from "natural-orderby";
+import { crafterMaterias } from "./materia";
 
 const subHandOrder = [
   "木工",
@@ -44,7 +44,7 @@ function GearTable({
   toggleOwned,
 }: {
   prefix: string;
-  materias: Map<string, Materia[]>;
+  materias: Map<string, MateriaSlot[]>;
   order: string[];
   owned: Set<string>;
   toggleOwned: (name: string) => void;
@@ -80,7 +80,7 @@ const collectRequiredMaterias = (
   owned: Set<string>
 ): Map<string, Map<number, number>> => {
   const reqs = new Map<string, Map<number, number>>();
-  const fn = (prefix: string, materias: Map<string, Materia[]>) => {
+  const fn = (prefix: string, materias: Map<string, MateriaSlot[]>) => {
     materias.forEach((mats, name) => {
       mats.forEach((mat, idx) => {
         const key = `${prefix}-${name}-${idx}`;
@@ -98,36 +98,6 @@ const collectRequiredMaterias = (
   fn("クラフター", crafter);
   return reqs;
 };
-
-function RequiredMateria({
-  name,
-  req,
-  ec,
-  confidence,
-}: {
-  name: string;
-  req: Map<number, number>;
-  ec: ExpectedCount;
-  confidence: number;
-}) {
-  return (
-    <div className="flex hover:bg-blue-100">
-      <div className="w-64">{name}</div>
-      <div className="w-10">{expectedCountAtThreshold(ec, confidence)}</div>
-      <div className="flex">
-        {orderBy(Array.from(req.entries()), [(x) => -x[0]]).map(
-          ([probability, slots]) => {
-            return (
-              <div key={probability} className="w-40">
-                確率{probability}% {slots}個
-              </div>
-            );
-          }
-        )}
-      </div>
-    </div>
-  );
-}
 
 export default function MateriaGearset({}: {}) {
   const [owned, setOwned] = useState(new Set<string>());
@@ -202,17 +172,62 @@ export default function MateriaGearset({}: {}) {
           onChange={(ev) => setConfidence(parseInt(ev.target.value))}
         />
       </div>
-      {Array.from(needed.entries())
-        .sort()
-        .map(([name, ec]) => (
-          <RequiredMateria
-            key={name}
-            name={name}
-            req={reqs.get(name)!}
-            ec={ec}
-            confidence={confidence}
-          />
-        ))}
+      <div className="mt-4">
+        <h2 className="text-xl">クラフター</h2>
+        {crafterMaterias.map((mat) => {
+          return (
+            <div key={mat.prefix} className="ml-4">
+              <h3>{mat.prefix}</h3>
+              <div className="ml-4 w-full">
+                {mat.effects.map((effect) => {
+                  const name = `${mat.prefix}の${effect.suffix}`;
+                  const ec = needed.get(name);
+                  if (!ec) {
+                    return null;
+                  }
+                  const count = expectedCountAtThreshold(ec, confidence);
+                  return (
+                    <div key={effect.suffix} className="flex">
+                      <div className="w-[16ch] font-bold">{effect.suffix}</div>
+                      <div className="w-[8ch] font-bold text-right">
+                        {count}個
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      <div className="mt-4">
+        <h2 className="text-xl">ギャザラー</h2>
+        {crafterMaterias.map((mat) => {
+          return (
+            <div key={mat.prefix} className="ml-4">
+              <h3>{mat.prefix}</h3>
+              <div className="ml-4 w-full">
+                {mat.effects.map((effect) => {
+                  const name = `${mat.prefix}の${effect.suffix}`;
+                  const ec = needed.get(name);
+                  if (!ec) {
+                    return null;
+                  }
+                  const count = expectedCountAtThreshold(ec, confidence);
+                  return (
+                    <div key={effect.suffix} className="flex">
+                      <div className="w-[16ch] font-bold">{effect.suffix}</div>
+                      <div className="w-[8ch] font-bold text-right">
+                        {count}個
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
